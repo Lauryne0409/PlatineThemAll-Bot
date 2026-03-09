@@ -229,16 +229,29 @@ async def team_classement(interaction: discord.Interaction):
         await interaction.response.send_message("Il n'y a pas d'équipe actuellement")
         return
     classement = sorted(teams.values(), key=lambda team: team.points, reverse=True)
-    classement_embed = discord.Embed(
-        title="🏆 --- Classement des équipes --- 🏆",
-        description="Classement des équipes par rapport à leurs point !",
-        color=discord.Color.blue(),
-    )
-    for index, team in enumerate(classement, start=1):
-        classement_embed.add_field(
-            name=f"{index}. {team.nom}", value=f"{team.points} points", inline=False
+
+    # Discord limite les embeds à 25 champs par message.
+    max_fields = 25
+
+    for i in range(0, len(classement), max_fields):
+        chunk = classement[i : i + max_fields]
+        title = (
+            "🏆 --- Classement des équipes --- 🏆"
+            if i == 0
+            else "🏆 --- Suite du classement --- 🏆"
         )
-    await interaction.response.send_message(embed=classement_embed)
+        embed = discord.Embed(title=title, color=discord.Color.blue())
+        for index, team in enumerate(chunk, start=i + 1):
+            embed.add_field(
+                name=f"{index}. {team.nom}",
+                value=f"{team.points} points",
+                inline=False,
+            )
+
+        if i == 0:
+            await interaction.response.send_message(embed=embed)
+        else:
+            await interaction.followup.send(embed=embed)
 
 
 # Démarrage du Bot
