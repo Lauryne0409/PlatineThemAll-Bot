@@ -54,8 +54,11 @@ print("✅ Teams data loaded successfully")
 
 # Setup du Bot
 print("🔧 Setting up bot with intents...")
-intents = discord.Intents.all()
-bot = commands.Bot(command_prefix="!", intents=discord.Intents.all())
+intents = discord.Intents.default()
+intents.guilds = True
+intents.members = False
+intents.presences = False
+bot = commands.Bot(command_prefix="!", intents=intents)
 print("✅ Bot instance created")
 
 # Commandes et événements
@@ -78,19 +81,18 @@ async def on_ready():
         print("⚠️  Bot started but with command sync errors")
 
 
-@bot.event
-async def on_message(message: discord.message):
-    if message.content.lower() == "$help":
-        channel = message.channel
-        await channel.send(
-            "Ta besoin d'aide ? Voici les **commandes** dispo ! :\n"
-            "- **/set-role** : Mettre à jour le role Modo d'event\n"
-            "- **/new-team** : Ajouter une nouvelle équipe à l'event\n"
-            "- **/remove-team** : Enlever une nouvelle équipe à l'event\n"
-            "- **/add-points** : Ajouter des points à une équipe\n"
-            "- **/remove-points** : Enlever des points à une équipe\n"
-            "- **/classement** : Afficher le classement des meilleurs équipes\n"
-        )
+@bot.tree.command(name="help", description="Afficher les commandes disponibles")
+async def help_command(interaction: discord.Interaction):
+    await interaction.response.send_message(
+        "Ta besoin d'aide ? Voici les **commandes** dispo ! :\n"
+        "- **/help** : Afficher la liste des commandes\n"
+        "- **/set-role** : Mettre à jour le role Modo d'event\n"
+        "- **/new-team** : Ajouter une nouvelle équipe à l'event\n"
+        "- **/remove-team** : Enlever une nouvelle équipe à l'event\n"
+        "- **/add-points** : Ajouter des points à une équipe\n"
+        "- **/remove-points** : Enlever des points à une équipe\n"
+        "- **/classement** : Afficher le classement des meilleurs équipes\n"
+    )
 
 
 @bot.tree.command(name="set-role", description="Changer le rôle Modo d'event")
